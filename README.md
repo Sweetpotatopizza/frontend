@@ -1,2 +1,2 @@
-# re_server
-django server
+# frontend
+jsp로 구현
