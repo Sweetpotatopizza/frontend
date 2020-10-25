@@ -9,10 +9,20 @@ import java.io.InputStreamReader;
 public class Connect {
 	private String str_url;
 	private HttpURLConnection con;
+	private String message;
+	private String result;
 
 	public void setURL(String url)
 	{
 		this.str_url=url;
+	}
+	
+	public void setmessage(String message) {
+		this.message=message;
+	}
+	
+	public String getresult() {
+		return this.result;
 	}
 	
 	public boolean connect(String str_url)
@@ -47,7 +57,7 @@ public class Connect {
 			
 			con.setDoOutput(false);
 			StringBuilder sb=new StringBuilder();
-			if(con.getResponseCode()==HttpURLConnection.HTTP_OK) {
+			if(con.getResponseCode()<300) {
 				BufferedReader br=new BufferedReader(
 						new InputStreamReader(con.getInputStream()));
 				String line;
@@ -56,18 +66,24 @@ public class Connect {
 				}
 				br.close();
 				System.out.println(""+sb.toString());
+				this.result=""+sb.toString();
+				con.disconnect();
 				return true;
 			}else {
 				System.out.println(con.getResponseMessage());
+				this.result="{}";
+				con.disconnect();
 				return false;
 			}
 		}catch(Exception e) {
 			System.err.println(e.toString());
+			this.result="{}";
+			con.disconnect();
 			return false;
 		}
 	}
 	
-	public boolean post(String jsonMessage)
+	public boolean post()
 	{
 		try {
 			URL url=new URL(this.str_url);
@@ -82,11 +98,11 @@ public class Connect {
 			con.setDefaultUseCaches(false);
 			
 			OutputStreamWriter wr=new OutputStreamWriter(con.getOutputStream());
-			wr.write(jsonMessage);
+			wr.write(this.message);
 			wr.flush();
 			
 			StringBuilder sb=new StringBuilder();
-			if(con.getResponseCode()==HttpURLConnection.HTTP_ACCEPTED) {
+			if(con.getResponseCode()<300) {
 				BufferedReader br=new BufferedReader(
 						new InputStreamReader(con.getInputStream(),"utf-8"));
 				String line;
@@ -95,13 +111,19 @@ public class Connect {
 				}
 				br.close();
 				System.out.println(""+sb.toString());
+				this.result=""+sb.toString();
+				con.disconnect();
 				return true;
 			}else {
 				System.out.println(con.getResponseMessage());
+				this.result="{}";
+				con.disconnect();
 				return false;
 			}
 		}catch(Exception e) {
 			System.err.println(e.toString());
+			this.result="{}";
+			con.disconnect();
 			return false;
 		}
 	}
